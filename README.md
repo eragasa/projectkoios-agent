@@ -1,5 +1,5 @@
 # projectkoios-agent
 
-Agent harness and workflow orchestration for Project Koios.
+Deferred reusable agent-domain components for Project Koios.
 
-Routing and role split live in `projectkoios-bootstrap/docs/agent-charter.md`.
+Repository routing is documented in `projectkoios-bootstrap/maps/repositories.md`.

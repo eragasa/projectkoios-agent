@@ -1,10 +1,10 @@
 [project]
 name = "projectkoios-agent"
 version = "0.0.0"
-description = "agent harness and workflow orchestration"
+description = "deferred reusable agent-domain components"
 readme = "README.md"
-requires-python = ">=3.12"
-license = "MIT"
+requires-python = ">=3.14"
+license = "Apache-2.0"
 authors = [
     { name = "Eugene Ragasa", email = "eugene@projectkoios.com" },
 ]
@@ -24,7 +24,7 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 80
-target-version = "py312"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

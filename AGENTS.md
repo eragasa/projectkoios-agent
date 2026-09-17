@@ -1,6 +1,6 @@
 # projectkoios-agent
 
-This repo owns the agent harness and workflow orchestration.
+This repository is reserved for reusable agent-domain components with a demonstrated stable extraction boundary.
 
-Routing and role split live in `projectkoios-bootstrap/docs/agent-charter.md`.
-This repo does not own cross-repo routing or product architecture policy.
+Repository routing is documented in `projectkoios-bootstrap/maps/repositories.md`.
+This repo does not own cross-repo routing, generic workflow execution, or product architecture policy.
