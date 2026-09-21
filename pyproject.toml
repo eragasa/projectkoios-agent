@@ -16,11 +16,19 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["src/python"]
 
+[tool.setuptools.package-data]
+"projectkoios.agent" = ["py.typed"]
+
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.8", "mypy>=1.13"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.mypy]
+mypy_path = "src/python"
+namespace_packages = true
+explicit_package_bases = true
 
 [tool.ruff]
 line-length = 80
