@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  github-tasks:
+    name: Python 3.14 task sequence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: GitHubTask 01 · Check out agent candidate
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: GitHubTask 02 · Install locked Python toolchain
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: "0.11.25"
+          python-version: "3.14"
+          enable-cache: false
+
+      - name: GitHubTask 03 · Synchronize locked environment
+        run: uv sync --locked --all-extras
+
+      - name: GitHubTask 04 · Check formatting
+        run: .venv/bin/python -m ruff format --check src/python tests
+
+      - name: GitHubTask 05 · Lint
+        run: .venv/bin/python -m ruff check src/python tests
+
+      - name: GitHubTask 06 · Type-check agent source
+        run: .venv/bin/python -m mypy src/python/projectkoios/agent
+
+      - name: GitHubTask 07 · Run tests
+        run: .venv/bin/python -m pytest -q
