@@ -98,9 +98,10 @@ class ReadOnlyCloudCatalogIngester:
                     f"{root.root_id}\0{relative_path}".encode()
                 ).hexdigest()
                 offline_flag = getattr(stat, "UF_OFFLINE", 0)
+                file_flags = getattr(metadata, "st_flags", 0)
                 availability = (
                     FileAvailability.CLOUD_PLACEHOLDER
-                    if offline_flag and metadata.st_flags & offline_flag
+                    if offline_flag and file_flags & offline_flag
                     else FileAvailability.LOCAL
                 )
                 yield FileObservation(
