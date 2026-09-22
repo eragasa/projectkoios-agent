@@ -2,7 +2,9 @@
 
 ## Status
 
-Scoped candidate; implementation is deferred until separately authorized.
+Slice 1 implements the pure contract, prompt construction, response validation,
+and deterministic Markdown rendering. Local artifact publication and a real
+model backend remain deferred to later slices.
 
 ## Purpose
 
