@@ -2,9 +2,10 @@
 
 ## Status
 
-Slice 1 implements the pure contract, prompt construction, response validation,
-and deterministic Markdown rendering. Local artifact publication and a real
-model backend remain deferred to later slices.
+Slices 1 and 2 implement the pure contract, prompt construction, response
+validation, deterministic Markdown rendering, bounded local execution, exact
+fake-backend exchange replay, and atomic no-overwrite artifact publication. A
+real model backend remains deferred to Slice 3.
 
 ## Purpose
 

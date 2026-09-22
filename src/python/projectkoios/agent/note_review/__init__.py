@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+from projectkoios.agent.note_review.application import (
+    LocalNoteReviewService,
+    NoteReviewApplicationError,
+    NoteReviewBackend,
+    NoteReviewPublication,
+)
 from projectkoios.agent.note_review.models import (
     NoteReviewProposal,
     NoteReviewRequest,
@@ -18,7 +24,11 @@ from projectkoios.agent.note_review.validation import (
 )
 
 __all__ = [
+    "LocalNoteReviewService",
+    "NoteReviewApplicationError",
+    "NoteReviewBackend",
     "NoteReviewContractError",
+    "NoteReviewPublication",
     "NoteReviewProposal",
     "NoteReviewRequest",
     "ReviewBoundary",
