@@ -9,6 +9,10 @@ authors = [
     { name = "Eugene Ragasa", email = "eugene@projectkoios.com" },
 ]
 
+[project.scripts]
+koios-organizer = "projectkoios.agent.organizer.cli:control_main"
+koios-organizerd = "projectkoios.agent.organizer.cli:daemon_main"
+
 [build-system]
 requires = ["setuptools>=61.0.0"]
 build-backend = "setuptools.build_meta"
