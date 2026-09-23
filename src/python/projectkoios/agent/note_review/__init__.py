@@ -4,6 +4,8 @@ from projectkoios.agent.note_review.application import (
     LocalNoteReviewService,
     NoteReviewApplicationError,
     NoteReviewBackend,
+    NoteReviewBackendCompletion,
+    NoteReviewBackendEvidence,
     NoteReviewPublication,
 )
 from projectkoios.agent.note_review.models import (
@@ -11,6 +13,13 @@ from projectkoios.agent.note_review.models import (
     NoteReviewRequest,
     ReviewBoundary,
     ReviewProfile,
+)
+from projectkoios.agent.note_review.ollama import (
+    LoopbackNoteReviewOllamaTransport,
+    OllamaNoteReviewBackend,
+    OllamaNoteReviewConfiguration,
+    OllamaNoteReviewError,
+    OllamaNoteReviewTransport,
 )
 from projectkoios.agent.note_review.prompting import (
     note_review_system_prompt,
@@ -25,12 +34,19 @@ from projectkoios.agent.note_review.validation import (
 
 __all__ = [
     "LocalNoteReviewService",
+    "LoopbackNoteReviewOllamaTransport",
     "NoteReviewApplicationError",
     "NoteReviewBackend",
+    "NoteReviewBackendCompletion",
+    "NoteReviewBackendEvidence",
     "NoteReviewContractError",
     "NoteReviewPublication",
     "NoteReviewProposal",
     "NoteReviewRequest",
+    "OllamaNoteReviewBackend",
+    "OllamaNoteReviewConfiguration",
+    "OllamaNoteReviewError",
+    "OllamaNoteReviewTransport",
     "ReviewBoundary",
     "ReviewProfile",
     "note_review_json_schema",

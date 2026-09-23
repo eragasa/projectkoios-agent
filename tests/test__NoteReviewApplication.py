@@ -9,6 +9,8 @@ import pytest
 from projectkoios.agent.note_review import (
     LocalNoteReviewService,
     NoteReviewApplicationError,
+    NoteReviewBackendCompletion,
+    NoteReviewBackendEvidence,
     application,
 )
 
@@ -36,18 +38,27 @@ class _FakeBackend:
         self.user_prompt = ""
         self.response_schema: dict[str, object] = {}
 
+    def configuration(self) -> dict[str, object]:
+        return {"backend": "test-fake", "fixture": "note-review-v1"}
+
     def complete(
         self,
         *,
         system_prompt: str,
         user_prompt: str,
         response_schema: dict[str, object],
-    ) -> bytes:
+    ) -> NoteReviewBackendCompletion:
         self.calls += 1
         self.system_prompt = system_prompt
         self.user_prompt = user_prompt
         self.response_schema = response_schema
-        return self.response
+        return NoteReviewBackendCompletion(
+            response=self.response,
+            evidence=NoteReviewBackendEvidence(
+                backend="test-fake",
+                response_sha256=hashlib.sha256(self.response).hexdigest(),
+            ),
+        )
 
 
 def _paths(tmp_path: Path) -> dict[str, Path]:
@@ -100,17 +111,26 @@ def test__local_note_review_service__publishes_review_receipt_and_archive(
     source = paths["source"].read_bytes()
     request_archive = next(paths["archive"].glob("*.request.json"))
     assert receipt == {
+        "backend": {
+            "backend": "test-fake",
+            "exchange_request_sha256": None,
+            "exchange_response_sha256": None,
+            "model": None,
+            "model_digest": None,
+            "response_sha256": hashlib.sha256(_response()).hexdigest(),
+            "runtime_version": None,
+        },
         "boundary": "AUTOMATED_UNREVIEWED",
         "model_request_sha256": request_archive.name[:64],
         "profile": "SCIENTIFIC_NOTE",
         "request_id": "review:entropy-001",
         "response_sha256": hashlib.sha256(_response()).hexdigest(),
         "review_sha256": hashlib.sha256(rendered).hexdigest(),
-        "schema": "koios.note-review-receipt.v1",
+        "schema": "koios.note-review-receipt.v2",
         "source_sha256": hashlib.sha256(source).hexdigest(),
     }
     archived = tuple(paths["archive"].iterdir())
-    assert len(archived) == 2
+    assert len(archived) == 3
     assert all((path.stat().st_mode & 0o777) == 0o600 for path in archived)
     assert (paths["output"].stat().st_mode & 0o777) == 0o600
     assert (publication.receipt_path.stat().st_mode & 0o777) == 0o600
@@ -242,7 +262,7 @@ def test__local_note_review_service__rolls_back_partial_publication_and_replays(
     ) -> None:
         nonlocal link_calls
         link_calls += 1
-        if link_calls == 4:
+        if link_calls == 5:
             raise OSError("simulated receipt publication failure")
         real_link(
             source,
