@@ -2,10 +2,10 @@
 
 ## Status
 
-Slices 1 and 2 implement the pure contract, prompt construction, response
+Slices 1 through 3 implement the pure contract, prompt construction, response
 validation, deterministic Markdown rendering, bounded local execution, exact
-fake-backend exchange replay, and atomic no-overwrite artifact publication. A
-real model backend remains deferred to Slice 3.
+exchange replay, atomic no-overwrite artifact publication, and a pinned
+loopback Ollama backend. Real-runtime execution remains opt-in.
 
 ## Purpose
 
@@ -64,9 +64,8 @@ The first implementation uses a deterministic fake backend in unit tests. The
 backend receives the completed prompts and returns response bytes; it does not
 receive filesystem paths or write artifacts.
 
-A later loopback Ollama adapter may be added after the pure contract, renderer,
-and application service are tested. That adapter should reuse the established
-literature-review controls where applicable:
+The loopback Ollama adapter applies the established literature-review controls
+where applicable:
 
 - loopback-only transport;
 - pinned model digest and minimum runtime version;
@@ -76,15 +75,15 @@ literature-review controls where applicable:
 - replay without repeating a completed model call.
 
 Shared backend mechanics should be extracted only after both components expose
-the same stable behavior. The first review-note slice may duplicate a small
-amount of adapter code rather than generalize prematurely.
+the same stable behavior. The review-note adapter duplicates a small amount of
+transport code rather than generalizing prematurely.
 
 ## Artifact publication
 
 The application service receives explicit source, output, and archive paths.
 It validates the response before publishing the review. Publication uses an
-exclusive temporary file, flushes it, and atomically replaces the final path.
-It never overwrites an existing review.
+exclusive temporary file, flushes it, and atomically links each absent final
+path. It never overwrites an existing review.
 
 A receipt binds at least:
 
@@ -158,5 +157,6 @@ The MVP does not:
 - exact exchange archives and replay; and
 - an opt-in integration test against a configured local runtime.
 
-Each slice must pass `pytest`, `ruff check .`, and `mypy src/python`. Slice 3
-must not begin until slices 1 and 2 establish the backend-independent contract.
+Each slice must pass `pytest`, `ruff check .`, and `mypy src/python`. Shared
+backend extraction remains deferred until repeated behavior demonstrates a
+stable common contract.

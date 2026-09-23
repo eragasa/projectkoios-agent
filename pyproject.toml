@@ -24,6 +24,9 @@ dev = ["pytest>=8.0", "ruff>=0.8", "mypy>=1.13"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: tests that require a configured external local runtime",
+]
 
 [tool.mypy]
 mypy_path = "src/python"
