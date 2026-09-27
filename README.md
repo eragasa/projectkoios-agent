@@ -10,3 +10,6 @@ The demonstrated literature-review extraction boundary is documented in
 The bounded review-note MVP scope and its explicit non-dependency on the
 mothership workspace prototype are documented in
 [`docs/review-note.md`](docs/review-note.md).
+
+The bounded organizer metadata-categorization candidate is documented in
+[`docs/organizer-categorization.md`](docs/organizer-categorization.md).
