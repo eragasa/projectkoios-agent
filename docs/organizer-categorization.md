@@ -1,52 +1,91 @@
-# Organizer metadata-categorization boundary
+# Organizer metadata-categorization and observer boundary
 
-Status: bounded candidate; proposals remain automated and unreviewed.
+Status: bounded owner component; proposals remain automated and unreviewed.
 
-`projectkoios.agent.organizer` owns a small domain contract for proposing PARA
-and life-domain categories from caller-supplied file metadata. It provides:
+`projectkoios.agent.organizer` owns a local, metadata-only organizer boundary. It
+provides:
 
 - immutable, bounded file-observation and categorization-proposal values;
 - a domain-specific `BaseFileCategorizer` with one abstract `propose` method;
-- a deterministic fake implementation in tests through that same is-a
-  contract;
 - a loopback-only Ollama implementation with pinned model digest and minimum
   runtime version, deterministic generation parameters, and bounded requests;
-- strict duplicate-safe, closed, UTF-8 response validation; and
-- exact one-proposal-per-input identity coverage.
+- discovery of conventional macOS cloud-provider roots;
+- a read-only filesystem metadata scan that skips symlinks and never opens file
+  payloads;
+- a private SQLite catalog for roots, observations, proposals, control state,
+  and operational events; and
+- explicit `on`, `pause`, `off`, and `status` controls for a polling daemon.
 
-The base class does not own backend state, transport, lifecycle, persistence, or
-shared validation helpers. The Ollama implementation composes with its narrow
-transport protocol. This is not a reusable model-backend framework.
+The categorizer remains independently usable with caller-supplied bounded
+metadata. The daemon composes that contract with local discovery, catalog, and
+control components; it does not create a generic workflow or model-backend
+framework.
 
 ## Privacy and trust boundary
 
-The caller supplies only a stable file identifier, relative path, extension,
-and byte size. Relative paths and filenames are sensitive, untrusted data and
-never model instructions. The package does not read files or verify that the
-metadata corresponds to a filesystem object.
+Relative paths and filenames are sensitive, untrusted data and never model
+instructions. In direct categorizer use, the caller supplies only a stable file
+identifier, relative path, extension, and byte size. In daemon use, the scanner
+derives the same categorization fields from local filesystem metadata and also
+records root identity, filename, modification time, and cloud-placeholder
+availability in the private catalog.
 
-The Ollama implementation sends those metadata fields to an explicitly
-allowlisted loopback endpoint. Its default transport disables proxies, rejects
-redirects, and bounds response bytes. It does not contact a remote service,
-archive exchanges, or persist proposals. An injected transport is a caller-owned
-test or integration boundary and does not weaken validation of model identity
-or returned proposals.
+The scanner uses metadata operations only. It traverses directories through
+no-follow descriptors so a directory replaced by a symbolic link cannot
+redirect a scan outside the root. It skips symbolic links, non-regular files,
+inaccessible entries, unavailable directories, and metadata outside the
+bounded observation contract. macOS dataless flags are recorded as cloud
+placeholders. The scanner does not open source files or request placeholder
+downloads. The source tree is never renamed, moved, deleted, or otherwise
+modified.
+
+The Ollama implementation sends the bounded categorization fields to an
+explicitly allowlisted loopback endpoint. Its default transport disables
+proxies, rejects redirects, and bounds response bytes. It does not contact a
+remote service. Model output is validated as untrusted input before proposals
+are stored.
 
 A proposal does not establish file contents, ownership, privacy clearance,
-rights, publication approval, or a decision to move or otherwise modify a file.
+rights, publication approval, or authorization to organize a file.
+
+## Local operation
+
+The package installs two entry points:
+
+- `koios-organizer {on|pause|off|status}` updates or reports explicit control
+  state.
+- `koios-organizerd` runs observation and categorization passes while the
+  desired mode is `on`.
+
+The catalog defaults to
+`~/projectkoios/.koios/store-v1/state/organizer/catalog.sqlite3`. Override it
+with an absolute `KOIOS_ORGANIZER_CATALOG` path, or override the data root
+with an absolute `KOIOS_DATA_ROOT` path.
+
+The daemon requires both `KOIOS_ORGANIZER_MODEL_DIGEST` and
+`KOIOS_ORGANIZER_MINIMUM_RUNTIME_VERSION`. `KOIOS_ORGANIZER_MODEL` defaults to
+`qwen3.5:9b`. The digest and minimum runtime version are checked before each
+non-empty categorization request.
+
+The catalog directory and database are created with private permissions.
+Repeated scans update observed metadata, invalidate a stored proposal when its
+source metadata changes, and preserve an event history. Records for paths that
+later disappear are not removed automatically, so the catalog is a retained
+projection rather than a guaranteed current inventory. It is not an
+authorization ledger or a source of file ownership decisions.
 
 ## Non-goals
 
-This slice does not:
+This component does not:
 
-- discover cloud roots, scan directories, or access filesystem metadata;
-- read, move, rename, delete, upload, or publish files;
-- store observations or proposals in SQLite or another catalog;
-- run a daemon, control loop, CLI, scheduler, or process supervisor;
-- select files or authorize organization actions;
+- read file payloads or infer knowledge of their contents;
+- move, rename, delete, upload, publish, or otherwise organize source files;
+- follow symbolic links or force cloud-placeholder downloads;
+- review or accept categorization proposals;
+- install a process supervisor, login item, scheduler, or system service;
 - coordinate repositories or invoke a generic workflow engine;
 - support remote model services; or
 - extract a shared backend or transport framework.
 
-Any lifecycle, persistence, filesystem, process, or product-policy behavior
-requires a separately demonstrated owner boundary.
+Any source mutation, proposal review, organization policy, remote inference,
+or service installation requires a separately owned and authorized boundary.
